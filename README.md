@@ -1,16 +1,60 @@
 # smartassistant
 
-A new Flutter project.
+Flutter app with suggestions, chat, and synced chat history.
 
-## Getting Started
+## Chat API configuration
 
-This project is a starting point for a Flutter application.
+The chat client is configurable with `--dart-define`, so you can point the app
+at your own AI/chat backend without changing code.
 
-A few resources to get you started if this is your first Flutter project:
+```bash
+flutter run \
+  --dart-define=API_BASE_URL=https://your-api.example.com \
+  --dart-define=API_CHAT_PATH=/chat \
+  --dart-define=API_CHAT_HISTORY_PATH=/chat/history
+```
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+If your API requires an auth token, pass it at launch time as well:
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```bash
+flutter run \
+  --dart-define=API_BASE_URL=https://your-api.example.com \
+  --dart-define=API_AUTH_TOKEN='Bearer your-token'
+```
+
+Optional:
+
+- `API_AUTH_HEADER` defaults to `Authorization`
+- `API_SUGGESTIONS_PATH` defaults to `/suggestions`
+
+## Chat API contract
+
+`POST /chat` accepts:
+
+```json
+{
+  "message": "Hello"
+}
+```
+
+Supported reply shapes include plain text or JSON payloads such as:
+
+```json
+{
+  "reply": "Hi, how can I help?"
+}
+```
+
+or:
+
+```json
+{
+  "data": {
+    "reply": "Hi, how can I help?"
+  }
+}
+```
+
+`GET /chat/history` can return either a list directly or a wrapped list under
+`data`, `messages`, or `history`. Each item should include `sender` or `role`,
+`message` or `content`, and can optionally include `timestamp`.

@@ -8,18 +8,22 @@ class DioClient {
   late final Dio _dio;
 
   DioClient() {
+    final headers = <String, dynamic>{'Content-Type': 'application/json'};
+    if (ApiConstants.authToken.isNotEmpty) {
+      headers[ApiConstants.authHeader] = ApiConstants.authToken;
+    }
+
     _dio = Dio(
       BaseOptions(
         baseUrl: ApiConstants.baseUrl,
         connectTimeout: ApiConstants.connectTimeout,
         receiveTimeout: ApiConstants.receiveTimeout,
-        headers: {'Content-Type': 'application/json'},
+        headers: headers,
       ),
     );
-    _dio.interceptors.add(LogInterceptor(
-      requestBody: true,
-      responseBody: true,
-    ));
+    _dio.interceptors.add(
+      LogInterceptor(requestBody: true, responseBody: true),
+    );
   }
 
   /// Performs a GET request to [path] with optional [queryParameters].
@@ -33,7 +37,8 @@ class DioClient {
       return response;
     } on DioException catch (e) {
       throw ServerException(
-        message: e.response?.data?['message']?.toString() ??
+        message:
+            e.response?.data?['message']?.toString() ??
             e.message ??
             'Network error occurred',
         statusCode: e.response?.statusCode,
@@ -43,16 +48,14 @@ class DioClient {
 
   /// Performs a POST request to [path] with [data] body.
   /// @throws [ServerException] on non-success responses or network errors.
-  Future<Response> post(
-    String path, {
-    Map<String, dynamic>? data,
-  }) async {
+  Future<Response> post(String path, {Map<String, dynamic>? data}) async {
     try {
       final response = await _dio.post(path, data: data);
       return response;
     } on DioException catch (e) {
       throw ServerException(
-        message: e.response?.data?['message']?.toString() ??
+        message:
+            e.response?.data?['message']?.toString() ??
             e.message ??
             'Network error occurred',
         statusCode: e.response?.statusCode,

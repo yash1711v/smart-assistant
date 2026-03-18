@@ -31,20 +31,18 @@ class ChatRepositoryImpl implements ChatRepository {
     return reply;
   }
 
-
   @override
   Future<List<ChatMessage>> getChatHistory() async {
     final models = await _remoteDataSource.getChatHistory();
+    await _localDataSource.replaceMessages(models);
     return models;
   }
-
 
   @override
   Future<List<ChatMessage>> getLocalChatHistory() async {
     final models = await _localDataSource.getMessages();
     return models;
   }
-
 
   @override
   Future<void> saveMessageLocally(ChatMessage message) async {

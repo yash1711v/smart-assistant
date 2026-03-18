@@ -19,10 +19,10 @@ class ChatCubit extends Cubit<ChatState> {
     required SendMessage sendMessage,
     required GetChatHistory getChatHistory,
     required ChatRepository repository,
-  })  : _sendMessage = sendMessage,
-        _getChatHistory = getChatHistory,
-        _repository = repository,
-        super(const ChatInitial());
+  }) : _sendMessage = sendMessage,
+       _getChatHistory = getChatHistory,
+       _repository = repository,
+       super(const ChatInitial());
 
   /// Loads chat history, showing cached messages first then syncing remote.
   ///
@@ -58,10 +58,9 @@ class ChatCubit extends Cubit<ChatState> {
       timestamp: DateTime.now(),
     );
 
-    emit(ChatLoaded(
-      messages: [...currentMessages, userMessage],
-      isSending: true,
-    ));
+    emit(
+      ChatLoaded(messages: [...currentMessages, userMessage], isSending: true),
+    );
 
     try {
       final reply = await _sendMessage(message: message);
@@ -72,12 +71,11 @@ class ChatCubit extends Cubit<ChatState> {
         timestamp: DateTime.now(),
       );
 
-      emit(ChatLoaded(
-        messages: [...currentMessages, userMessage, assistantMessage],
-      ));
-
-      await _repository.saveMessageLocally(userMessage);
-      await _repository.saveMessageLocally(assistantMessage);
+      emit(
+        ChatLoaded(
+          messages: [...currentMessages, userMessage, assistantMessage],
+        ),
+      );
     } catch (_) {
       emit(ChatLoaded(messages: [...currentMessages, userMessage]));
     }
